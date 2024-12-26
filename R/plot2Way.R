@@ -1,7 +1,7 @@
 #' Plot two-way interactions from gbm model
 #'
 #' @param dw_model Model object from running [buildMod()].
-#' @param variable The variables to plot. Must be of length two e.g. `variables
+#' @param vars The varss to plot. Must be of length two e.g. `varss
 #'   = c("ws", "wd")`.
 #' @param res Resolution in x-y, i.e., number of points in each dimension.
 #' @param exclude Should surfaces exclude predictions too far from original
@@ -20,7 +20,7 @@
 #' @family deweather model plotting functions
 #' @author David Carslaw
 plot2Way <- function(dw_model,
-                     variable = c("ws", "air_temp"),
+                     vars = c("ws", "air_temp"),
                      res = 100,
                      exclude = TRUE,
                      cols = "default",
@@ -35,17 +35,17 @@ plot2Way <- function(dw_model,
 
   res <- gbm::plot.gbm(
     mod,
-    i.var = variable,
+    i.var = vars,
     continuous.resolution = res,
     return.grid = TRUE
   )
 
   ## exclude predictions too far from data (from mgcv)
 
-  if (exclude && all(sapply(res[variable], is.numeric))) {
-    sub <- stats::na.omit(data[, variable]) ## pairs of variables
-    x <- sub[[variable[1]]] ## x data
-    y <- sub[[variable[2]]] ## y data
+  if (exclude && all(sapply(res[vars], is.numeric))) {
+    sub <- stats::na.omit(data[, vars]) ## pairs of varss
+    x <- sub[[vars[1]]] ## x data
+    y <- sub[[vars[2]]] ## y data
 
     mx <- unique(res[, 1])
     my <- unique(res[, 2])
@@ -63,8 +63,8 @@ plot2Way <- function(dw_model,
   }
 
   if (all(sapply(res, is.numeric))) {
-    var1 <- variable[1]
-    var2 <- variable[2]
+    var1 <- vars[1]
+    var2 <- vars[2]
 
 
     plt <-
@@ -84,23 +84,23 @@ plot2Way <- function(dw_model,
       print(plt)
     }
   } else {
-    var1 <- variable[1]
-    var2 <- variable[2]
+    var1 <- vars[1]
+    var2 <- vars[2]
     
-    ## need to rename variables that use openair dates
-    if ("hour" %in% variable) {
-      id <- which(variable == "hour")
-      variable[id] <- "Hour"
-      var2 <- variable[which(variable != "Hour")]
+    ## need to rename varss that use openair dates
+    if ("hour" %in% vars) {
+      id <- which(vars == "hour")
+      vars[id] <- "Hour"
+      var2 <- vars[which(vars != "Hour")]
       res <- dplyr::rename(res, Hour = .data$hour)
       #  res$Hour <- factor(round(res$Hour))
       var1 <- "Hour"
     }
     
-    if ("weekday" %in% variable) {
-      id <- which(variable == "weekday")
-      variable[id] <- "Weekday"
-      var2 <- variable[which(variable != "Weekday")]
+    if ("weekday" %in% vars) {
+      id <- which(vars == "weekday")
+      vars[id] <- "Weekday"
+      var2 <- vars[which(vars != "Weekday")]
       res <- dplyr::rename(res, Weekday = .data$weekday)
       
       weekday.names <- format(ISOdate(2000, 1, 2:8), "%a")
